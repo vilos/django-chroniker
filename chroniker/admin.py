@@ -34,11 +34,11 @@ except ImportError:
 
 class HTMLWidget(forms.Widget):
     def __init__(self, rel=None, attrs=None):
-        self.rel = rel
+        self.remote_field = remote_field
         super(HTMLWidget, self).__init__(attrs)
 
     def render(self, name, value, attrs=None):
-        if self.rel is not None:
+        if self.remote_field is not None:
             key = self.remote_field.get_related_field().name
             obj = self.remote_field.to._default_manager.get(**{key: value})
             related_url = '../../../%s/%s/%d/' % (
@@ -618,7 +618,7 @@ class LogAdmin(admin.ModelAdmin):
             return db_field.formfield(**kwargs)
 
         if isinstance(db_field, models.ForeignKey):
-            kwargs['widget'] = HTMLWidget(db_field.rel)
+            kwargs['widget'] = HTMLWidget(db_field.remote_field)
             return db_field.formfield(**kwargs)
 
         return super(LogAdmin, self).formfield_for_dbfield(db_field, **kwargs)
