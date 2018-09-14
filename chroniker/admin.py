@@ -39,11 +39,11 @@ class HTMLWidget(forms.Widget):
 
     def render(self, name, value, attrs=None):
         if self.rel is not None:
-            key = self.rel.get_related_field().name
-            obj = self.rel.to._default_manager.get(**{key: value})
+            key = self.remote_field.get_related_field().name
+            obj = self.remote_field.to._default_manager.get(**{key: value})
             related_url = '../../../%s/%s/%d/' % (
-                self.rel.to._meta.app_label,
-                self.rel.to._meta.object_name.lower(),
+                self.remote_field.to._meta.app_label,
+                self.remote_field.to._meta.object_name.lower(),
                 value)
             value = "<a href='%s'>%s</a>" % (related_url, escape(obj))
 
