@@ -499,6 +499,13 @@ class Job(models.Model):
         help_text=_('''If checked, this job will be run automatically according
             to the frequency options.'''))
 
+    fixed_time = models.DateTimeField(
+        _("fixed time"),
+        blank=True,
+        null=True,
+        help_text=_("sets fixed time of day to run for daily jobs and longer")
+        )
+
     next_run = models.DateTimeField(
         _("next run"),
         blank=True,
@@ -1194,7 +1201,15 @@ class Job(models.Model):
             if not self.force_run:
                 print("Determining 'next_run' for job {}...".format(self.id))
                 if next_run < timezone.now():
-                    next_run = timezone.now()
+                    if self.frequency in (c.YEARLY, c.MONTHLY, c.WEEKLY, c.DAILY) and self.fixed_time:
+                        dt = self.fixed_time
+                        next_run = next_run.replace(hour=dt.hour,
+                                         minute=dt.minute,
+                                         second=dt.second,
+                                         microsecond=0)
+                    else:
+                        next_run = timezone.now()
+
                 _next_run = next_run
                 next_run = self.rrule.after(next_run)
                 print(_next_run, next_run)
