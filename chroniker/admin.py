@@ -18,7 +18,7 @@ from django.template.defaultfilters import linebreaks
 from django.utils import dateformat, timezone
 from django.utils.datastructures import MultiValueDict
 from django.utils.formats import get_format
-from django.utils.html import escape
+from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import capfirst
 from django.utils.translation import ugettext_lazy as _
@@ -255,7 +255,7 @@ class JobAdmin(admin.ModelAdmin):
             except NoReverseMatch:
                 # New way
                 u = reverse('admin:chroniker_log_change', args=(log_id,))
-            return '<a href="%s">%s</a>' % (u, value)
+            return format_html('<a href="%s">%s</a>' % (u, value))
         except Exception:
             return value
     last_run_with_link.admin_order_field = 'last_run'
@@ -277,7 +277,7 @@ class JobAdmin(admin.ModelAdmin):
         dt = obj.next_run
         dt = utils.localtime(dt)
         value = capfirst(dateformat.format(dt, fmt))
-        return "%s<br /><span class='mini'>(%s)</span>" % (value, obj.get_timeuntil())
+        return format_html("%s<br /><span class='mini'>(%s)</span>" % (value, obj.get_timeuntil()))
     get_timeuntil.admin_order_field = 'next_run'
     get_timeuntil.allow_tags = True
     get_timeuntil.short_description = _('next scheduled run')
@@ -298,7 +298,7 @@ class JobAdmin(admin.ModelAdmin):
         kwargs = dict(
             url='%d/run/?inline=1' % obj.id,
         )
-        return '<a href="{url}" class="button">Run</a>'.format(**kwargs)
+        return format_html('<a href="{url}" class="button">Run</a>'.format(**kwargs))
     run_button.allow_tags = True
     run_button.short_description = 'Run'
 
@@ -308,7 +308,7 @@ class JobAdmin(admin.ModelAdmin):
         kwargs = dict(url='%d/stop/?inline=1' % obj.id, disabled='')
         if not obj.is_running:
             kwargs['disabled'] = 'disabled'
-        s = '<a href="{url}" class="button" {disabled}>Stop</a>'.format(**kwargs)
+        s = format_html('<a href="{url}" class="button" {disabled}>Stop</a>'.format(**kwargs))
         return s
     stop_button.allow_tags = True
     stop_button.short_description = 'Stop'
@@ -322,8 +322,8 @@ class JobAdmin(admin.ModelAdmin):
             id=obj.id,
             count=q.count(),
         )
-        return '<a href="{url}?job__id__exact={id}" target="_blank" class="button">View&nbsp;{count}</a>'\
-            .format(**kwargs)
+        return format_html('<a href="{url}?job__id__exact={id}" target="_blank" class="button">View&nbsp;{count}</a>'\
+            .format(**kwargs))
     view_logs_button.allow_tags = True
     view_logs_button.short_description = 'Logs'
 
