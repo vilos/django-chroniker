@@ -1,3 +1,4 @@
+import django
 
 try:
     # Removed in Django 1.6
@@ -17,13 +18,20 @@ except ImportError:
 
 from django.contrib import admin
 
-admin.autodiscover()
+if django.VERSION < (2, 0):
+    admin.autodiscover()
 
-_patterns = [
-    url(r'^admin/', include(admin.site.urls)),
-]
+    _patterns = [
+        url(r'^admin/', include(admin.site.urls)),
+    ]
 
-if patterns is None:
-    urlpatterns = _patterns
+    if patterns is None:
+        urlpatterns = _patterns
+    else:
+        urlpatterns = patterns('', *_patterns)
 else:
-    urlpatterns = patterns('', *_patterns)
+    from django.urls import path
+
+    urlpatterns = [
+        path('admin/', admin.site.urls),
+    ]
